@@ -1,5 +1,12 @@
 {
   "family": "students-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::975049979529:role/ecsTaskExecutionRole",  // Replace with your actual ECS task execution role ARN
   "containerDefinitions": [
     {
       "name": "students-container",
@@ -10,7 +17,8 @@
       "portMappings": [
         {
           "containerPort": 8080,
-          "hostPort": 8080
+          "hostPort": 8080,
+          "protocol": "tcp"
         }
       ]
     }
