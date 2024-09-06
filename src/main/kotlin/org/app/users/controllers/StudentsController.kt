@@ -25,7 +25,6 @@ class StudentsController(
         return userService.getUsers()
     }
 
-
     fun getAllUsers(t:Throwable):MutableList<Students>{
         val students = mutableListOf<Students>()
         students.forEach { student->
