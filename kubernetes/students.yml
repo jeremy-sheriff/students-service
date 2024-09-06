@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: students
+  labels:
+    app: students
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: students
+  template:
+    metadata:
+      name: students
+      labels:
+        app: students
+    spec:
+      containers:
+        - name: students
+          image: muhohoweb/students-image:1.0.0
+          ports:
+            - containerPort: 8081
+          imagePullPolicy: Always
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: students-service
+  labels:
+    app: students
+spec:
+  selector:
+    app: students
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8081
+  type: NodePort
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: students-api-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - path: /students/
+            pathType: Prefix
+            backend:
+              service:
+                name: students-service
+                port:
+                  number: 80
