@@ -10,17 +10,71 @@
   "containerDefinitions": [
     {
       "name": "students-container",
-      "image": "muhohoweb/students-image:latest",
-      "essential": true,
-      "memory": 512,
-      "cpu": 256,
+      "image": "muhohoweb/students-image:3.0.3",
+      "cpu": 0,
       "portMappings": [
         {
           "containerPort": 8081,
           "hostPort": 8081,
           "protocol": "tcp"
         }
-      ]
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "CORS_ALLOWED_ORIGINS",
+          "value": "muhohodev.com"
+        },
+        {
+          "name": "KEY_CLOAK_USERNAME",
+          "value": "app-user"
+        },
+        {
+          "name": "DB_USERNAME",
+          "value": "postgres"
+        },
+        {
+          "name": "DB_URL",
+          "value": "jdbc:postgresql://terraform-20240907083108682100000006.cby0wmmyeox4.us-east-1.rds.amazonaws.com:5432/postgres"
+        },
+        {
+          "name": "KEY_CLOAK_PASSWORD",
+          "value": "gitpass2016"
+        },
+        {
+          "name": "COURSE_URL",
+          "value": "localhost:8083"
+        },
+        {
+          "name": "KEY_CLOAK_ISSUER_URI",
+          "value": "https://muhohodev.com/keycloak/auth/realms/school"
+        },
+        {
+          "name": "DB_PASSWORD",
+          "value": "6130Password2024"
+        }
+      ],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/students",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "api"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "curl -f http://localhost:8081/api/students/health || exit 1"
+        ],
+        "interval": 30,
+        "timeout": 10,
+        "retries": 10,
+        "startPeriod": 30
+      },
+      "systemControls": []
     }
   ]
 }
