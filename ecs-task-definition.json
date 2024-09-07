@@ -10,7 +10,7 @@
   "containerDefinitions": [
     {
       "name": "students-container",
-      "image": "muhohoweb/students-image:3.0.3",
+      "image": "muhohoweb/students-image:latest",
       "cpu": 0,
       "portMappings": [
         {
