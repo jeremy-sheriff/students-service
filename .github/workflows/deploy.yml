@@ -14,7 +14,7 @@ env:
   ECS_SERVICE_NAME: students-service  # Update with your ECS service name
   ECS_TASK_DEFINITION: students-task  # Update with your ECS task definition family
   CONTAINER_NAME: students-container  # Name of the container in the ECS task
-  DOCKER_IMAGE_NAME: muhohoweb/students-image:3.0.4  # Docker image from Docker Hub
+  DOCKER_IMAGE_NAME: muhohoweb/students-image:3.0.5  # Docker image from Docker Hub
 
 jobs:
   build_and_deploy:

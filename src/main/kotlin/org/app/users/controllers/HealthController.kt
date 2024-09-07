@@ -19,10 +19,16 @@ class HealthController {
         val ipAddress = inetAddress.hostAddress
         val hostname = inetAddress.hostName
 
+
+        // Retrieve the Docker image name from an environment variable
+        val dockerImageName = System.getenv("DOCKER_IMAGE_NAME") ?: "Unknown Image"
+
+
         response["status"] = "success"
         response["hostIpAddress"] = ipAddress
         response["hostName"] = hostname
         response["ci/cd"] = "test CI/CD"
+        response["dockerImageName"] = dockerImageName
 
         return ResponseEntity.status(200).body(response)
     }

@@ -52,6 +52,9 @@
         {
           "name": "DB_PASSWORD",
           "value": "6130Password2024"
+        },{
+          "name": "DOCKER_IMAGE_NAME",
+          "value": "3.0.5"
         }
       ],
       "mountPoints": [],
