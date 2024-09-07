@@ -1,5 +1,5 @@
 #!/bin/bash
-version="3.0.3"
+version="3.0.4"
 ./gradlew clean &&
 
 ./gradlew build -x test  &&

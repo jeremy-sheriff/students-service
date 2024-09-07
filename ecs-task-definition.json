@@ -11,7 +11,7 @@
     {
       "name": "students-container",
       "image": "muhohoweb/students-image:latest",
-      "cpu": 0,
+      "cpu": 512,
       "portMappings": [
         {
           "containerPort": 8081,
