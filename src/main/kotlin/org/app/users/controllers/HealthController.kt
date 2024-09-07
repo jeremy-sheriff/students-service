@@ -22,6 +22,7 @@ class HealthController {
         response["status"] = "success"
         response["hostIpAddress"] = ipAddress
         response["hostName"] = hostname
+        response["ci/cd"] = "test CI/CD"
 
         return ResponseEntity.status(200).body(response)
     }
