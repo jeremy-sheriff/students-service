@@ -14,7 +14,10 @@ import java.util.*
 
 @RestController
 @RequestMapping("api/students")
-@CrossOrigin(origins = ["\${cors.allowed.origins}"])
+@CrossOrigin(origins = [
+    "\${cors.allowed.origins}",
+    "http://localhost:4200"]
+)
 @PreAuthorize("hasAnyAuthority('library_role')")
 class StudentsController(
     private val userService: UserService
