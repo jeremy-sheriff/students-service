@@ -8,6 +8,7 @@ import java.net.InetAddress
 
 @RestController
 @RequestMapping("/api/students/health")
+
 class HealthController {
 
     @GetMapping("")

@@ -1,65 +1,65 @@
-name: CI/CD for AWS ECS Deployment
-
-on:
-  push:
-    branches:
-      - main  # This will trigger the workflow on pushes to the main branch
-  pull_request:
-    branches:
-      - main
-
-env:
-  AWS_REGION: us-east-1  # Update as per your AWS region
-  ECS_CLUSTER_NAME: ecs-cluster  # ecs-cluster Update with your ECS cluster name
-  ECS_SERVICE_NAME: students-service  # Update with your ECS service name
-  ECS_TASK_DEFINITION: students-task  # Update with your ECS task definition family
-  CONTAINER_NAME: students-container  # Name of the container in the ECS task
-  DOCKER_IMAGE_NAME: muhohoweb/students-image:3.0.6  # Docker image from Docker Hub
-
-jobs:
-  build_and_deploy:
-    name: Build and Deploy to AWS ECS
-    runs-on: ubuntu-latest
-
-    steps:
-      # Step 1: Checkout the repository
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      # Step 2: Log in to Docker Hub (optional if using a public image)
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      # Step 3: Pull the Docker image from Docker Hub
-      - name: Pull Docker image from Docker Hub
-        run: |
-          docker pull ${{ env.DOCKER_IMAGE_NAME }}
-
-      # Step 4: Configure AWS credentials
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      # Step 5: Update ECS task definition with the new image
-      - name: Update ECS Task Definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ecs-task-definition.json  # Local task definition file
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: ${{ env.DOCKER_IMAGE_NAME }}
-
-      # Step 6: Deploy the updated task definition to ECS
-      - name: Deploy to ECS Service
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE_NAME }}
-          cluster: ${{ env.ECS_CLUSTER_NAME }}
-          wait-for-service-stability: true
+#name: CI/CD for AWS ECS Deployment
+#
+#on:
+#  push:
+#    branches:
+#      - main  # This will trigger the workflow on pushes to the main branch
+#  pull_request:
+#    branches:
+#      - main
+#
+#env:
+#  AWS_REGION: us-east-1  # Update as per your AWS region
+#  ECS_CLUSTER_NAME: ecs-cluster  # ecs-cluster Update with your ECS cluster name
+#  ECS_SERVICE_NAME: students-service  # Update with your ECS service name
+#  ECS_TASK_DEFINITION: students-task  # Update with your ECS task definition family
+#  CONTAINER_NAME: students-container  # Name of the container in the ECS task
+#  DOCKER_IMAGE_NAME: muhohoweb/students-image:3.0.6  # Docker image from Docker Hub
+#
+#jobs:
+#  build_and_deploy:
+#    name: Build and Deploy to AWS ECS
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      # Step 1: Checkout the repository
+#      - name: Checkout Code
+#        uses: actions/checkout@v3
+#
+#      # Step 2: Log in to Docker Hub (optional if using a public image)
+#      - name: Log in to Docker Hub
+#        uses: docker/login-action@v2
+#        with:
+#          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+#          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+#
+#      # Step 3: Pull the Docker image from Docker Hub
+#      - name: Pull Docker image from Docker Hub
+#        run: |
+#          docker pull ${{ env.DOCKER_IMAGE_NAME }}
+#
+#      # Step 4: Configure AWS credentials
+#      - name: Configure AWS Credentials
+#        uses: aws-actions/configure-aws-credentials@v3
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: ${{ env.AWS_REGION }}
+#
+#      # Step 5: Update ECS task definition with the new image
+#      - name: Update ECS Task Definition
+#        id: task-def
+#        uses: aws-actions/amazon-ecs-render-task-definition@v1
+#        with:
+#          task-definition: ecs-task-definition.json  # Local task definition file
+#          container-name: ${{ env.CONTAINER_NAME }}
+#          image: ${{ env.DOCKER_IMAGE_NAME }}
+#
+#      # Step 6: Deploy the updated task definition to ECS
+#      - name: Deploy to ECS Service
+#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+#        with:
+#          task-definition: ${{ steps.task-def.outputs.task-definition }}
+#          service: ${{ env.ECS_SERVICE_NAME }}
+#          cluster: ${{ env.ECS_CLUSTER_NAME }}
+#          wait-for-service-stability: true

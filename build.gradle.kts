@@ -28,17 +28,19 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-//    implementation("org.springframework.kafka:spring-kafka")
-//    testImplementation("org.springframework.kafka:spring-kafka-test")
+    implementation("com.amazonaws:aws-java-sdk-sqs:1.12.773")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12
+    testImplementation("org.slf4j:slf4j-log4j12:2.0.16")
 
     //Security
     implementation("org.springframework.boot:spring-boot-starter-security")
     testImplementation("org.springframework.security:spring-security-test")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5")
 }
 dependencyManagement {
     imports {

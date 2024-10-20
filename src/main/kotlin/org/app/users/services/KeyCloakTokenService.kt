@@ -7,11 +7,17 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.IOException
 import org.app.users.dto.KeycloakTokenResponse
+import org.app.users.security.SecurityConfig
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @Service
 class KeyCloakTokenService {
+
+    // Add SLF4J logger instance
+    private val logger: Logger = LoggerFactory.getLogger(KeyCloakTokenService::class.java)
 
     @Value("\${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/token")
     lateinit var tokenEndpoint: String
@@ -41,6 +47,9 @@ class KeyCloakTokenService {
             val keycloakTokenResponse: KeycloakTokenResponse = mapper.readValue(responseBody)
 
             // Handle the response
+
+            // Log the value in securityFilterChain method if needed
+            logger.debug("Access token: {}", keycloakTokenResponse.accessToken)
             return keycloakTokenResponse.accessToken
         }
 

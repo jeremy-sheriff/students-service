@@ -34,8 +34,8 @@ env_vars=(
     "KEY_CLOAK_CLIENT_ID=students-service"
     "KEY_CLOAK_USERNAME=app-user"
     "KEY_CLOAK_PASSWORD=gitpass2016"
-    "KEY_CLOAK_TOKEN_ENDPOINT=https://example.com/auth/realms/myrealm/protocol/openid-connect/token"
-    "KEY_CLOAK_ISSUER_URI=http://localhost:30293/keycloak/auth/realms/school"
+    "KEY_CLOAK_TOKEN_ENDPOINT=http://localhost:8083/auth/realms/myrealm/protocol/openid-connect/token"
+    "KEY_CLOAK_ISSUER_URI=http://localhost:8083/keycloak/auth/realms/school"
     "KEY_CLIENT_PASSWORD=gitpass2016"
     "KEY_CLOAK_DB_USERNAME=postgres"
     "KEY_CLOAK_USERS_DB=users_db"
@@ -44,8 +44,9 @@ env_vars=(
     "DB_USER=postgres"
     "DB_USERNAME=postgres"
     "DB_PASSWORD=gitpass2016"
-    "DB_URL=jdbc:postgresql://localhost:5432/users_db"
+    "DB_URL=jdbc:postgresql://localhost:5432/postgres"
     "CORS_ALLOWED_ORIGINS=http//localhost:3000"
+    "KEY_ADMIN_PASSWORD=bKKKAnuMRT9Qph3m"
     # Add any other environment variables you want to manage here
 )
 
