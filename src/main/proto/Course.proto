@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.app.courses.proto";
+option java_outer_classname = "CoursesProto";
+
+package courses;
+
+// Department message
+message Department {
+  int64 id = 1;
+  string name = 2;
+  repeated Course courses = 3;
+}
+
+// Course message
+message Course {
+  int64 id = 1;
+  string name = 2;
+  int64 department_id = 3;
+}
+
+// Request/Response messages for CRUD operations
+
+message GetDepartmentRequest {
+  int64 id = 1;
+}
+
+message GetDepartmentResponse {
+  Department department = 1;
+}
+
+message ListDepartmentsRequest {
+  int32 page_size = 1;
+  int32 page_number = 2;
+}
+
+message ListDepartmentsResponse {
+  repeated Department departments = 1;
+  int32 total_count = 2;
+}
+
+message CreateDepartmentRequest {
+  string name = 1;
+}
+
+message CreateDepartmentResponse {
+  Department department = 1;
+}
+
+message GetCourseRequest {
+  int64 id = 1;
+}
+
+message GetCourseResponse {
+  Course course = 1;
+}
+
+message ListCoursesRequest {
+  int32 page_size = 1;
+  int32 page_number = 2;
+  optional int64 department_id = 3;
+}
+
+message ListCoursesResponse {
+  repeated Course courses = 1;
+  int32 total_count = 2;
+}
+
+message CreateCourseRequest {
+  string name = 1;
+  int64 department_id = 2;
+}
+
+message CreateCourseResponse {
+  Course course = 1;
+}
+
+message UpdateCourseRequest {
+  int64 id = 1;
+  string name = 2;
+  int64 department_id = 3;
+}
+
+message UpdateCourseResponse {
+  Course course = 1;
+}
+
+message DeleteCourseRequest {
+  int64 id = 1;
+}
+
+message DeleteCourseResponse {
+  bool success = 1;
+}
+
+// Optional: gRPC service definitions
+service DepartmentService {
+  rpc GetDepartment(GetDepartmentRequest) returns (GetDepartmentResponse);
+  rpc ListDepartments(ListDepartmentsRequest) returns (ListDepartmentsResponse);
+  rpc CreateDepartment(CreateDepartmentRequest) returns (CreateDepartmentResponse);
+}
+
+service CourseService {
+  rpc GetCourse(GetCourseRequest) returns (GetCourseResponse);
+  rpc ListCourses(ListCoursesRequest) returns (ListCoursesResponse);
+  rpc CreateCourse(CreateCourseRequest) returns (CreateCourseResponse);
+  rpc UpdateCourse(UpdateCourseRequest) returns (UpdateCourseResponse);
+  rpc DeleteCourse(DeleteCourseRequest) returns (DeleteCourseResponse);
+}
