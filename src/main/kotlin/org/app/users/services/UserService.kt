@@ -1,63 +1,79 @@
 package org.app.users.services
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.app.users.controllers.StudentsController
-import org.app.users.dto.StudentExistsResponse
+import org.app.users.dto.CourseDepartmentDto
+
 import org.app.users.dto.UserDto
 import org.app.users.models.Students
 import org.app.users.repositories.UserRepository
-import org.jasypt.encryption.StringEncryptor
-import org.jasypt.util.text.BasicTextEncryptor
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import java.util.*
+
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 
 
 
 @Service
 class UserService(
     private val usersRepository: UserRepository,
-    private val securityService: SecurityService,
-
-    @Value("\${jasypt.encryptor.password}")
-    private val encryptionPassword: String,
-    private val encryptor: StringEncryptor  // Inject Jasypt Encryptor
+    private val sqsService: SqsService,
+    private val rabbitMqService: RabbitMqService
 ) {
-
-    private val topic = System.getenv("KEY_CLOAK_CLIENT_ID")
 
     private val logger = LoggerFactory.getLogger(UserService::class.java)
 
     fun saveUser(userDto: UserDto): HttpStatus {
-        if (usersRepository.existsByAdmNo(userDto.admNo)) {
-            return HttpStatus.BAD_REQUEST
-        } else {
-            val user = Students(
-                id = UUID.randomUUID(), // Generate UUID
+        // Generate a NEW admission number for each student
+        val admNo = getLastAdmNo()
+        val user = Students(
+            id = UUID.randomUUID(),
+            admNo = admNo,
+            courseId = userDto.courseId,
+            name = userDto.name,
+        )
+        val objectMapper = jacksonObjectMapper()
+
+        // Persist
+        val savedUser = usersRepository.save(user)
+
+        val newUser = UserDto(
+            id = savedUser.id,
+            name = savedUser.name,
+            courseId = userDto.courseId,
+        )
+
+        // Send message to Rabbit  MQ
+        rabbitMqService.dispatchMessage(newUser.toString())
+
+
+        val savedUserMessage = savedUser.id?.let {
+            UserDto(
+                id = UUID.randomUUID(),
                 name = userDto.name,
-                admNo = userDto.admNo,
+                courseId = userDto.courseId,
             )
-            val objectMapper = jacksonObjectMapper()
+        }
+//        val userJson = objectMapper.writeValueAsString(savedUserMessage)
+//        println(userJson)
+        // kafkaTemplate.send(topic, userJson)
+        return HttpStatus.OK
+    }
 
-            // Persist
-            val savedUser = usersRepository.save(user)
+    fun getLastAdmNo(): String {
+        val lastAdmNo = usersRepository.findLastAdmNo()
 
-            val savedUserMessage = savedUser.id?.let {
-                UserDto(
-                    id = UUID.randomUUID(),
-                    name = userDto.name,
-                    admNo = userDto.admNo,
-                    course = userDto.course,
-                )
-            }
-            val userJson = objectMapper.writeValueAsString(savedUserMessage)
-            println(userJson)
-            // kafkaTemplate.send(topic, userJson)
-            return HttpStatus.OK
+        return if (lastAdmNo != null) {
+            // Extract the numeric part from "ADM0010"
+            val numericPart = lastAdmNo.removePrefix("ADM").toInt()
+            // Increment and format with leading zeros
+            "ADM${String.format("%04d", numericPart + 1)}"
+        } else {
+            // If no admission number exists, start with ADM0001
+            "ADM0001"
         }
     }
 
@@ -66,11 +82,11 @@ class UserService(
         return usersRepository.findAllById(ids)
     }
 
-    // Method to get users with pagination and return admission numbers normally (without masking)
     fun getUsers(page: Int, size: Int): Page<Students> {
-        val pageable = PageRequest.of(page, size)
-        return usersRepository.findAll(pageable)  // Admission numbers returned as-is
+        val pageable: Pageable = PageRequest.of(page, size)
+        return usersRepository.findAll(pageable)
     }
+
 
     // Method to find a user by UUID and return admission numbers normally (without masking)
     fun findById(uuid: UUID): Optional<Students> {

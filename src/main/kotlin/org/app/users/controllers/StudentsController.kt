@@ -3,14 +3,15 @@ package org.app.users.controllers
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
 import jakarta.validation.Valid
 import org.app.users.dto.StudentExistsResponse
+import org.app.users.dto.StudentWithCourseDto
 import org.app.users.dto.UserDto
 import org.app.users.models.Students
-import org.app.users.services.SqsService
+import org.app.users.services.CourseGrpcClientService
+import org.app.users.services.RabbitMqService
 import org.app.users.services.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.*
 import org.springframework.data.domain.Page
@@ -18,28 +19,44 @@ import java.util.*
 
 @RestController
 @RequestMapping("api/students")
-@CrossOrigin(origins = ["http://localhost:4200",
-    "https://api.muhohodev.com",
-    "https://muhohodev.com"])
-@PreAuthorize("hasAnyAuthority('library_role')")
 class StudentsController(
     private val userService: UserService,
-    private val sqsService: SqsService,
-
-
+    private  val courseGrpcClientService: CourseGrpcClientService
 ) {
     private val logger = LoggerFactory.getLogger(StudentsController::class.java)
 
-    @GetMapping("all")
-    @CircuitBreaker(name = "userService", fallbackMethod = "getAllUsers")
-    fun getUsers(@RequestParam(defaultValue = "0") page: Int,
-                 @RequestParam(defaultValue = "10") size: Int
-    ): ResponseEntity<Page<Students>> {
-        val users = userService.getUsers(page, size)
-        return ResponseEntity.ok(users)
+
+    @GetMapping("/all")
+    fun getUsers(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "20") size: Int
+    ): ResponseEntity<List<StudentWithCourseDto>> {
+        val students = userService.getUsers(page, size).content
+
+        // Get all unique course IDs and convert to Long
+        val courseIds = students
+            .mapNotNull { it.courseId }
+            .mapNotNull { it.toLongOrNull() }  // Convert String to Long safely
+            .distinct()
+
+        // Fetch all courses in one batch call
+        val coursesMap = courseGrpcClientService.getCoursesByIds(courseIds)
+            .associateBy { it.id }
+
+        // Enrich students with course data
+        val studentsWithCourses = students.map { student ->
+            StudentWithCourseDto(
+                id = student.id,
+                name = student.name,
+                admNo = student.admNo,
+                course = student.courseId.toLongOrNull()?.let { coursesMap[it] }
+            )
+        }
+
+        return ResponseEntity.ok(studentsWithCourses)
     }
 
-    // Fallback method should match the signature of `getUsers`
+
     fun getAllUsers(page: Int, size: Int, t: Throwable): ResponseEntity<Page<Students>> {
         return ResponseEntity.ok(Page.empty())
     }
@@ -70,7 +87,6 @@ class StudentsController(
             if (response.name != "OK") {
                 ResponseEntity.badRequest().body(mapOf("status" to "error", "message" to "Failed to save student"))
             } else {
-                sqsService.sendJsonMessage(userDto)
                 ResponseEntity.ok(mapOf("status" to "success", "message" to "Student saved successfully"))
             }
         } catch (ex: MethodArgumentNotValidException) {
@@ -82,9 +98,11 @@ class StudentsController(
 
     @GetMapping("{admNo}")
     fun getUserByAdmNo(@PathVariable admNo: String): ResponseEntity<Students> {
+
         val student = userService.getUserByAdmNo(admNo)
         return ResponseEntity.ok(student)
     }
+
 
     @GetMapping("/id/{id}")
     fun getUserById(@PathVariable id: UUID): ResponseEntity<Optional<Students>> {

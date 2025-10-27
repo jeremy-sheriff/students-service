@@ -1,0 +1,102 @@
+spring:
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: admin
+    password: admin123
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+  application:
+    name: users
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEY_CLOAK_ISSUER_URI}
+          jwk-set-uri: ${KEY_CLOAK_JWK_SET_URI}
+
+  datasource:
+    password: ${DB_PASSWORD}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        default_schema: students
+
+server:
+  port: 8080
+
+# Actuator
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    prometheus:
+      enabled: true
+    metrics:
+      enabled: true
+    health:
+      show-details: always
+
+# Resilience4j
+resilience4j:
+  circuitbreaker:
+    instances:
+      userService:
+        register-health-indicator: true
+        event-consumer-buffer-size: 10
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state:
+          seconds: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: COUNT_BASED
+
+# CORS Configuration
+cors:
+  allowed:
+    origins: ${CORS_ALLOWED_ORIGINS}
+course:
+  url: ${COURSE_URL}
+
+jasypt:
+  encryptor:
+    password: hG7@eT!3rK9$yW0&  # The same secret key as in JasyptConfig
+    algorithm: PBEWithMD5AndDES
+
+aws:
+  accessKeyId: ${AWS_ACCESS_KEY_ID}
+  secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
+  region: us-east-1 # North Virginia
+  sqs:
+    queueUrl: ${AWS_SQS_URL}
+
+#grpc:
+#  client:
+#    courseService:
+#      address: 'static://course:9090'  # Use container name
+#      negotiationType: plaintext
+
+grpc:
+  client:
+    courseService:
+      address: 'dns:///course.school-app.svc.cluster.local:9090'  # ← Use dns:/// (3 slashes)
+      negotiationType: plaintext
+      defaultLoadBalancingPolicy: round_robin  # ← Add this

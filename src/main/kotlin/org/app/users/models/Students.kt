@@ -1,7 +1,6 @@
 package org.app.users.models
 
 import jakarta.persistence.*
-import org.app.users.converter.EncryptionConverter
 import org.hibernate.annotations.GenericGenerator
 import java.util.UUID
 
@@ -17,12 +16,14 @@ open class Students(
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
     open var id: UUID? = null,
 
+    @Column(name = "courseId", nullable = true)
+    open var courseId: String,
+
     @Column(name = "name", nullable = false)
     open var name: String,
 
-//    @Convert(converter = EncryptionConverter::class) // Apply converter for encryption
     @Column(name = "adm_no", unique = true, nullable = false)
     open var admNo: String
 ) {
-    constructor() : this(UUID.randomUUID(), "", "")
+    constructor() : this(UUID.randomUUID(), "", "","")
 }

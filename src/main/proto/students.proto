@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option java_package = "org.app.grpc";
+option java_multiple_files = true;
+
+service StudentService {
+  rpc GetStudentByAdmNo (AdmNoRequest) returns (StudentResponse);
+  rpc StudentExists (AdmNoRequest) returns (ExistsResponse);
+  rpc GetAllStudents (EmptyRequest) returns (stream StudentResponse);
+
+  // Add these new methods
+  rpc GetStudentById (StudentIdRequest) returns (StudentResponse);
+  rpc GetStudentsByIds (StudentIdsRequest) returns (StudentsListResponse);
+}
+
+message AdmNoRequest {
+  string adm_no = 1;
+}
+
+message StudentIdRequest {
+  string id = 1;
+}
+
+message StudentIdsRequest {
+  repeated string ids = 1;
+}
+
+message StudentResponse {
+  string id = 1;
+  string name = 2;
+  string adm_no = 3;
+}
+
+message StudentsListResponse {
+  repeated StudentResponse students = 1;
+}
+
+message ExistsResponse {
+  bool exists = 1;
+}
+
+message EmptyRequest {}

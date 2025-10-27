@@ -56,8 +56,8 @@ echo "New version: $new_version"
 # Run your build commands
 ./gradlew clean &&
 ./gradlew build -x test &&
-docker build --platform linux/amd64 -t muhohoweb/students-image:"$new_version" . &&
-docker push muhohoweb/students-image:"$new_version" &&
+docker build --platform linux/amd64 -t muhohoweb/school-app-students:"$new_version" . &&
+docker push muhohoweb/school-app-students:"$new_version" &&
 
 # Git add, commit, and push
 git add VERSION &&
